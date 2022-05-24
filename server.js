@@ -2,13 +2,13 @@
 const mysql = require('mysql2');
 // import inquirer module
 const inquirer = require('inquirer');
-const { isNumberObject } = require('util/types');
+// import chalk module
+const chalk = require('chalk');
+// import figlet module
+const figlet = require('figlet');
 
 // import console.table module
 require('console.table');
-
-// import dotenv module
-// require('dotenv').config();
 
 // connection to the database
 // all the values that aren't integers(maybe not booleans either but havent tested) have to be in quotes even if its a variable.
@@ -21,15 +21,13 @@ const connection = mysql.createConnection({
 
 connection.connect(err => {
   if (err) throw err;
-  console.log('Connected as id ' + connection.threadId);
-  connectionSuccess();
-})
+  console.log(chalk.blue.bold("*******************************************************************************************"));
 
-// This function will run after the connection is successful.
+  console.log(chalk.green.bold(figlet.textSync('Connection Success!')));
 
-connectionSuccess = () => {
+  console.log(chalk.blue.bold("*******************************************************************************************"));
   promptChoices();
-}
+})
 
 // view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
 
