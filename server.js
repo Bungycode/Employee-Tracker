@@ -2,17 +2,34 @@
 const mysql = require('mysql2');
 // import inquirer module
 const inquirer = require('inquirer');
+const { isNumberObject } = require('util/types');
+
+// import console.table module
+require('console.table');
+
 // import dotenv module
-require('dotenv').config();
+// require('dotenv').config();
 
 // connection to the database
+// all the values that aren't integers(maybe not booleans either but havent tested) have to be in quotes even if its a variable.
 const connection = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'root',
-  database: employees_db,
+  database: 'employees_db',
 });
 
+connection.connect(err => {
+  if (err) throw err;
+  console.log('Connected as id ' + connection.threadId);
+  connectionSuccess();
+})
+
+// This function will run after the connection is successful.
+
+connectionSuccess = () => {
+  promptChoices();
+}
 
 // view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
 
@@ -34,7 +51,7 @@ const promptChoices = () => {
                 'End']
     }
   ])
-  .then(function ({ selection }) {
+  .then(function ( { selection } ) {
     switch (selection) {
       case 'View All Departments': 
         viewDepartments();
@@ -79,7 +96,7 @@ viewDepartments = () => {
   const sql = `SELECT department.id AS id, department.name AS department
                 FROM department`;
   
-  connection.promise().query(sql, (err, rows) => {
+  connection.query(sql, (err, rows) => {
     if (err) throw err;
     console.table(rows);
     promptChoices();
@@ -95,7 +112,7 @@ viewRoles = () => {
               From role
               INNER JOIN department ON role.department_id = department.id`;
 
-  connection.promise().query(sql, (err, rows) => {
+  connection.query(sql, (err, rows) => {
     if (err) throw err;
     console.table(rows);
     promptChoices();
@@ -118,7 +135,7 @@ viewEmployees = () => {
               LEFT JOIN department ON role.department_id = department.id
               LEFT JOIN employee manager ON employee.manager_id = manager.id`;
 
-  connection.promise().query(sql, (err, rows) => {
+  connection.query(sql, (err, rows) => {
     if (err) throw err;
     console.table(rows);
     promptChoices();
@@ -127,7 +144,7 @@ viewEmployees = () => {
 
 // Declare a function that lets the user add a department.
 
-addDepartment() = () => {
+addDepartment = () => {
   inquirer.prompt([
     {
       type: 'input',
@@ -177,10 +194,10 @@ addRole = () => {
       name: 'salary',
       message: 'What is the salary for this role?',
       validate: addSalary => {
-        if (isNaN(addSalary)) {
+        if (!isNaN(addSalary)) {
           return true;
         } else {
-          console.log('Please enter in a salary.');
+          console.log('\n' + addSalary + ' is not a salary, please enter in a salary.');
           return false;
         }
       }
@@ -193,7 +210,7 @@ addRole = () => {
     const roleSql = `SELECT name, id
                     FROM department`;
     
-    connection.promise().query(roleSql, (err, data) => {
+    connection.query(roleSql, (err, data) => {
       if (err) throw err;
 
       const dept = data.map(( { name, id } ) => ( { name, value: id } ));
@@ -234,15 +251,11 @@ addEmployee = () => {
       name: 'firstName',
       message: "What is the employee's first name?",
       validate: addFirst => {
-        switch (addFirst) {
-          case addFirst: 
-            true;
-            break;
-          
-          default:
+        if (addFirst) { 
+            return true;
+        } else {
             console.log('Please enter a first name');
-            false;
-            break;
+            return false;
         }
       }
     },
@@ -251,18 +264,14 @@ addEmployee = () => {
       name: 'lastName',
       message: "What is the employee's last name?",
       validate: addLast => {
-        switch (addLast) {
-          case addLast:
-            true;
-            break;
-          
-          default:
-            console.log('Please enter a last name');
-            false;
-            break;
+        if (addLast) {
+          return true;
+        } else {
+            console.log('Please enter a first name');
+            return false;
         }
       }
-    }
+      }
   ])
   .then(answer => {
     const params = [answer.firstName, answer.lastName]
@@ -271,7 +280,7 @@ addEmployee = () => {
     const roleSql = `SELECT role.id, role.title
                     FROM role`;
 
-    connection.promise().query(roleSql, (err, data) => {
+    connection.query(roleSql, (err, data) => {
       if (err) throw err;
 
       const roles = data.map(( { id, title } ) => ( { name: title, value: id } ));
@@ -285,7 +294,7 @@ addEmployee = () => {
         }
       ])
       .then(roleChoice => {
-        console.log(role);
+        //console.log(role);
         const role = roleChoice.role;
         console.log(role);
         params.push(role);
@@ -293,7 +302,7 @@ addEmployee = () => {
         const managerSql = `SELECT * 
                             FROM employee`;
 
-        connection.promise().query(managerSql, (err, data) => {
+        connection.query(managerSql, (err, data) => {
           if (err) throw err;
 
           const managers = data.map(( { id, first_name, last_name } ) => ( { name: first_name + " " + last_name, value: id } ));
@@ -335,7 +344,7 @@ updateEmployeeRole = () => {
   const employeeSql = `SELECT *
                       FROM employee`;
 
-  connection.promise().query(employeeSql, (err, data) => {
+  connection.query(employeeSql, (err, data) => {
     if (err) throw err;
 
     const employees = data.map(( { id, first_name, last_name } ) => ( { name: first_name + " " + last_name, value: id } ));
@@ -356,7 +365,7 @@ updateEmployeeRole = () => {
       const roleSql = `SELECT *
                       FROM role`;
 
-      connection.promise().query(roleSql, (err, data) => {
+      connection.query(roleSql, (err, data) => {
         if (err) throw err;
 
         const roles = data.map(( { id, title } ) => ( { name: title, value: id } ));
