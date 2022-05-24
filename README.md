@@ -33,6 +33,7 @@
   ![This is an image of the Employee-Tracker program.](./public/images/Employee-Tracker.png)
 
   ## Live Demo
+  ![Employee-Tracker](https://user-images.githubusercontent.com/84283930/169943626-e20f6334-4357-4f74-9b56-9494220b0fc4.png)
 
   ## Questions
   You can search for my repo on GitHub by entering Bungycode and you can view my projects at https://github.com/Bungycode. If you have any questions, please contact me at thedevandrew@gmail.com
