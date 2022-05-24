@@ -125,7 +125,7 @@ viewEmployees = () => {
               employee.first_name,
               employee.last_name,
               role.title,
-              department.name AS department,
+              department.name AS department, 
               role.salary,
               CONCAT (manager.first_name, " ", manager.last_name) AS manager
         FROM employee
